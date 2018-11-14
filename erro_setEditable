@@ -1,0 +1,61 @@
+**Erro:
+
+Notice: Undefined property: stdClass::$VALOR_ENTRADA in C:\xampp\htdocs\CFCWeb\app\control\operacoes_diarias\Cfcweb20Form.php on line 730
+
+Fatal error: Uncaught Error: Call to a member function setEditable() on null in C:\xampp\htdocs\CFCWeb\app\control\operacoes_diarias\Cfcweb20Form.php:730 Stack trace: #0 [internal function]: Cfcweb20Form::onVerPlanoComEntrada(Array) #1 C:\xampp\htdocs\CFCWeb\lib\adianti\core\AdiantiCoreApplication.php(49): call_user_func(Array, Array) #2 C:\xampp\htdocs\CFCWeb\engine.php(23): Adianti\Core\AdiantiCoreApplication::run(true) #3 C:\xampp\htdocs\CFCWeb\engine.php(64): TApplication::run(true) #4 {main} thrown in C:\xampp\htdocs\CFCWeb\app\control\operacoes_diarias\Cfcweb20Form.php on line 730
+Version x.y.z Footer
+
+
+>>Enviando novamente o codigo completo<<
+========================================
+
+
+**chamada da função no campo:
+
+$COD_PLANO->setChangeAction(new TAction([$this,'onVerPlanoComEntrada']));
+
+
+**código da função:
+
+public static function onVerPlanoComEntrada($param = null) 
+{
+    try 
+    {
+        //code here
+        TTransaction::open(self::$database); // open a transaction
+        $planos = Cfcweb14::where('COD_PLANO', '=', ($param['COD_PLANO']) ) 
+                          ->where('NR_PARCELA', '=', '1')
+                          ->load();
+        if ($planos)
+        {
+           foreach ($planos as $plano) //$plano = Cfcweb14
+           {
+               echo 'Cfcweb14->COD_PLANO : ' . ($plano->COD_PLANO) . "<br>";
+               echo 'Cfcweb14->NR_PARCELA: ' . ($plano->NR_PARCELA) . "<br>";
+               echo 'Cfcweb14->QTDE_DIAS : ' . ($plano->QTDE_DIAS) . "<br>";
+               if ($plano->NR_PARCELA = 1)
+               {
+                  echo 'achou parcela = 1' . "<br>";
+                  $fill_data = new StdClass;
+                  if ($plano->QTDE_DIAS > 0) 
+                  {
+                     echo 'achou s/entrada' . "<br>";
+                     $fill_data->VALOR_ENTRADA->setEditable(false); 
+                  } else {
+                         echo 'achou c/entrada' . "<br>";
+                         $fill_data->VALOR_ENTRADA->setEditable(true); 
+                  }
+                  //--- Envia um objecto com os dados acima selecionados para o formulário principal.
+                  TForm::SendData((self::$formName), $fill_data);
+                  //---------------------------------------------------
+               }
+            }
+        }
+        TTransaction::close(); // close the transaction
+        //</autoCode>
+    }
+    catch (Exception $e) 
+    {
+        new TMessage('error', $e->getMessage());    
+    }
+}
